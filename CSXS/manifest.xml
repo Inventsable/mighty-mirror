@@ -33,12 +33,12 @@
           <Menu>mighty mirror</Menu>
           <Geometry>
             <Size>
-              <Height>400</Height>
-              <Width>280</Width>
+              <Height>500</Height>
+              <Width>500</Width>
             </Size>
             <MaxSize>
-              <Height>500</Height>
-              <Width>598</Width>
+              <Height>1000</Height>
+              <Width>1000</Width>
             </MaxSize>
             <MinSize>
               <Height>300</Height>

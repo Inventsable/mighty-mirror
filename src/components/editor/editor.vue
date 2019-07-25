@@ -24,7 +24,8 @@ export default {
   props: {
     lang: String,
     height: Number,
-    code: String
+    code: String,
+    solo: Boolean
   },
   data: () => ({
     theme: "vs-dark",
@@ -45,9 +46,10 @@ export default {
           "#98c379",
           "#d09966",
           "#676767",
-          "#b17cb6",
-          // "#f2777a", // 8
-          "#56b7c2",
+          // "#b17cb6",
+          "#f2777a", // 8
+          // "#56b7c2",
+          "#cdcdcd",
           "#cdcdcd",
           "",
           "",
@@ -124,13 +126,20 @@ export default {
   },
   async mounted() {
     const self = this;
-    this.app.editor = this;
+    if (!this.solo) {
+      let currLang = /css/.test(this.lang) ? "CSS" : "SVG";
+      this.app[`editor${currLang}`] = this;
+    } else {
+      console.log("Mounted solo");
+      this.app.editorTotal = this;
+    }
     this.editor = this.$refs.editor._getEditor();
     // this.setDefaultLibsToFalse();
     window.addEventListener("resize", this.updateEditorSize);
     this.updateEditorSize();
     this.updateTheme();
     // this.createActions();
+    console.log("Editor mounted");
   },
   methods: {
     focus() {
@@ -142,19 +151,19 @@ export default {
       return str;
     },
     createActions() {
-      this.editor.addAction({
-        id: "open",
-        label: "Open Snippet",
-        precondition: null,
-        keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_O],
-        keybindingContext: null,
-        contextMenuGroupId: "io",
-        contextMenuOrder: 1.6,
-        run: async function(ed) {
-          // self.app.toolbar.promptOpenDialog();
-          return null;
-        }
-      });
+      // this.editor.addAction({
+      //   id: "open",
+      //   label: "Open Snippet",
+      //   precondition: null,
+      //   keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_O],
+      //   keybindingContext: null,
+      //   contextMenuGroupId: "io",
+      //   contextMenuOrder: 1.6,
+      //   run: async function(ed) {
+      //     // self.app.toolbar.promptOpenDialog();
+      //     return null;
+      //   }
+      // });
     },
     toggleTheme() {
       if (/dark/.test(this.theme)) this.theme = "vs";
@@ -162,13 +171,22 @@ export default {
       monaco.editor.setTheme(this.theme);
     },
     updateEditorSize() {
+      // console.log(`${this.lang} ==  ${this.height}`);
       this.editorW = this.$el.offsetWidth;
-      // let parent = document.getElementById("contents");
-      // this.editorH = /css/.test(this.lang)
-      //   ? parent.children[2].offsetHeight
-      //   : parent.children[0].offsetHeight;
+      if (!this.height) {
+        if (!this.solo) {
+          let parent = document.getElementById("contents");
+          this.editorH = /css/.test(this.lang)
+            ? parent.children[2].offsetHeight - 6
+            : parent.children[0].offsetHeight - 6;
+        } else {
+          let parent = document.getElementById("main");
+          this.editorH = parent.offsetHeight - 6;
+        }
+      } else {
+        this.editorH = this.height - 6;
+      }
 
-      this.editorH = this.height - 6;
       // this.editorH = this.$el.offsetHeight / 2;
     },
 

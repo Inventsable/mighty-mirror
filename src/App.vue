@@ -1,16 +1,7 @@
 <template>
   <v-app>
-    <!-- <v-app-bar app>
-      <v-toolbar-title class="headline text-uppercase">
-        <span>Vuetify</span>
-        <span class="font-weight-light">MATERIAL DESIGN</span>
-      </v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-btn text href="https://github.com/vuetifyjs/vuetify/releases/latest" target="_blank">
-        <span class="mr-2">Latest Release</span>
-      </v-btn>
-    </v-app-bar>-->
-    <div class="topbar"></div>
+    <toolbar />
+    <!-- <div class="topbar"></div> -->
     <identity />
     <menus />
     <!-- <version /> -->
@@ -31,11 +22,13 @@ import starlette from "starlette";
 import identity from "./components/main/identity.vue";
 import menus from "./components/main/menus.vue";
 import bottombar from "./components/editor/bottombar.vue";
+import toolbar from "./components/editor/toolbar.vue";
 
 export default {
   name: "App",
   components: {
     identity,
+    toolbar,
     menus,
     bottombar
   },
@@ -47,9 +40,20 @@ export default {
   data: () => ({
     csInterface: null,
     identity: null,
+    solo: true,
     menus: null,
     isMounted: false,
-    editor: null
+    editorTotal: null,
+    editorCSS: null,
+    editorSVG: null,
+    masterCode: null,
+    isSyncing: false,
+    prefs: {
+      defaultClassPrefix: "logo",
+      useClasses: true,
+      noDataNames: true,
+      forVue: false
+    }
   }),
   mounted() {
     console.clear();
@@ -70,6 +74,13 @@ export default {
 
     // Vue Router must be manually initialized in CEP:
     this.$router.push({ name: "home" });
+    if (!this.solo) {
+      this.editorCSS.updateEditorSize();
+      this.editorSVG.updateEditorSize();
+    } else {
+      console.log("Updating solo");
+      this.editorTotal.updateEditorSize();
+    }
   },
   methods: {
     dispatchEvent(name, data) {
