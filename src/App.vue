@@ -4,7 +4,7 @@
     <!-- <div class="topbar"></div> -->
     <identity />
     <menus />
-    <!-- <version /> -->
+    <preferences />
     <bottombar />
     <v-content>
       <router-view />
@@ -23,6 +23,7 @@ import identity from "./components/main/identity.vue";
 import menus from "./components/main/menus.vue";
 import bottombar from "./components/editor/bottombar.vue";
 import toolbar from "./components/editor/toolbar.vue";
+import preferences from "./components/preferences.vue";
 
 export default {
   name: "App",
@@ -30,7 +31,8 @@ export default {
     identity,
     toolbar,
     menus,
-    bottombar
+    bottombar,
+    preferences
   },
   computed: {
     storage() {
@@ -47,16 +49,23 @@ export default {
     editorCSS: null,
     editorSVG: null,
     masterCode: null,
+    preferencedialog: null,
+    home: null,
     isSyncing: false,
     prefs: {
+      hasClassPrefix: false,
       defaultClassPrefix: "logo",
+      ignoreImages: false,
       useClasses: true,
       noDataNames: true,
-      forVue: false
+      forVue: false,
+      hasPreview: false,
+      hasPrettier: false
     }
   }),
   mounted() {
     console.clear();
+    starlette.init();
     this.csInterface = new CSInterface();
     this.csInterface.addEventListener("console", this.consoler);
 
@@ -67,11 +76,10 @@ export default {
       }`
     );
     this.isMounted = true;
-
     this.loadUniversalScripts();
 
-    starlette.init();
-
+    if (window.localStorage.getItem("prefs"))
+      this.assignPrefs(JSON.parse(window.localStorage.getItem("prefs")));
     // Vue Router must be manually initialized in CEP:
     this.$router.push({ name: "home" });
     if (!this.solo) {
@@ -83,6 +91,16 @@ export default {
     }
   },
   methods: {
+    assignPrefs(prefs) {
+      this.prefs.hasClassPrefix = prefs.hasClassPrefix;
+      this.prefs.defaultClassPrefix = prefs.defaultClassPrefix;
+      this.prefs.ignoreImages = prefs.ignoreImages;
+      this.prefs.useClasses = prefs.useClasses;
+      this.prefs.noDataNames = prefs.noDataNames;
+      this.prefs.forVue = prefs.forVue;
+      this.prefs.hasPreview = prefs.hasPreview;
+      this.prefs.hasPrettier = prefs.hasPrettier;
+    },
     dispatchEvent(name, data) {
       var event = new CSEvent(name, "APPLICATION");
       event.data = data;
@@ -172,13 +190,6 @@ export default {
   color: var(--color-selection);
 }
 
-.topbar {
-  width: 100%;
-  height: 30px;
-  box-sizing: border-box;
-  border: 2px solid red;
-}
-
 /* Various helper styles to match host application's theme */
 @import url("https://fonts.googleapis.com/css?family=Open+Sans&display=swap");
 :root {
@@ -186,7 +197,7 @@ export default {
   --quart: cubic-bezier(0.76, 0, 0.24, 1);
   --quint: cubic-bezier(0.84, 0, 0.16, 1);
 
-  --topbar-h: 30px;
+  --topbar-h: 56px;
   --bottombar-h: 30px;
 
   --bar-offset: calc(var(--topbar-h) + var(--bottombar-h));
@@ -194,7 +205,7 @@ export default {
   background-color: var(--color-bg);
   color: var(--color-default);
   font-family: "Open Sans", sans-serif;
-  font-size: 10px;
+  /* font-size: 10px; */
 }
 
 .theme--light.v-application {

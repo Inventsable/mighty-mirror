@@ -109,27 +109,57 @@ export default {
     },
     masterCode(content) {
       // If preferences and not solo, then trigger parse
+      const self = this;
       console.log("Total changed");
-      this.totalsamp = this.parseCode(content);
+      if (content) {
+        this.forceRedraw(content);
+      } else {
+        this.totalsamp = "";
+      }
+      // this.totalsamp = content ? this.forceRedraw(content) : "";
     }
   },
   mounted() {
     const self = this;
+    this.app.home = this;
     setTimeout(() => {
       self.resize();
     }, 20);
     console.log("Page mounted");
   },
-  afterMounted() {
-    console.log("After mounted");
-  },
   methods: {
+    forceRedraw(content) {
+      const self = this;
+      // return new Promise((resolve, reject) => {
+      content = content || self.app.masterCode;
+      console.log("Force redraw");
+      this.totalsamp = self.parseCode(content);
+      // self.totalsamp = content
+      // ? Promise.resolve(self.parseCode(content))
+      // : Promise.resolve("");
+      // if (content) {
+
+      // }
+      // });
+    },
     parseCode(content) {
       console.log("Parsing...");
+
+      // Should be separate
+      content = this.app.prefs.noDataNames
+        ? content.replace(/data-name\=\"\.[^\"]*\"\s/gm, "")
+        : content;
+      content = this.app.prefs.noDataNames
+        ? content.replace(/\sdata\-name\=\".*\"(?=\>)/gm, "")
+        : content;
+      content = this.app.prefs.hasClassPrefix
+        ? content.replace(/cls\-/gm, `${this.app.prefs.defaultClassPrefix}-`)
+        : content;
       content = this.app.prefs.useClasses
         ? this.replaceClasses(content)
         : content;
 
+      // return Promise.resolve(content);
       return content;
     },
     replaceClasses(content) {
@@ -139,15 +169,6 @@ export default {
 
       let allID = /id\=\"[^\"]*\"\s/gm;
       let allClass = /class\=\"[^\"]*\"/gm;
-
-      // Should be separate
-      let dataRX = /data-name\=\"\.[^\"]*\"\s/gm;
-      content = content.replace(dataRX, "");
-
-      content = content.replace(
-        /cls\-/gm,
-        `${this.app.prefs.defaultClassPrefix}-`
-      );
 
       let targs = content.match(classLineRX);
       targs.forEach(match => {
@@ -165,6 +186,7 @@ export default {
 
         content = content.replace(original, match);
       });
+      console.log("Finished?");
       return content;
     },
     resize() {

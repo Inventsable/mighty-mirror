@@ -1,7 +1,8 @@
 <template>
   <div class="main-editor-container">
-    <div :style="getPaddingStyle()"></div>
+    <!-- <div :style="getPaddingStyle()"></div> -->
     <MonacoEditor
+      id="realEditor"
       ref="editor"
       :width="editorW"
       :height="editorH"
@@ -322,5 +323,8 @@ export default {
 }
 .myContentClass {
   background: var(--color-note-label);
+}
+#realEditor {
+  padding-top: 6px;
 }
 </style>

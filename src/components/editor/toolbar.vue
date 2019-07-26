@@ -1,10 +1,10 @@
 <template>
-  <v-toolbar max-height="44px" dense :color="app.getCSS('color-input')">
+  <v-toolbar style="max-height: 56px;" :color="app.getCSS('color-input')">
+    <v-btn icon dark small @click="openPrefs">
+      <v-icon small>mdi-settings</v-icon>
+    </v-btn>
     <v-spacer></v-spacer>
     <!-- <v-btn-toggle flat v-model="toggle_multiple" multiple>
-      <v-btn small :value="1" text>
-        <v-icon small>format_bold</v-icon>
-      </v-btn>
 
       <v-btn small :value="2" text>
         <v-icon small>format_italic</v-icon>
@@ -52,13 +52,20 @@ export default {
     }
   },
   methods: {
+    openPrefs() {
+      this.app.preferencedialog.state = true;
+    },
     grabDoc() {
       const self = this;
+      // self.app.masterCode = "";
       this.isSaving = true;
+      console.log("Grab doc");
       let path = `${this.app.identity.root}/src/temp`;
       this.app.csInterface.evalScript(`quickExportSVG('${path}')`, name => {
         self.isSaving = false;
         self.app.masterCode = fs.readFileSync(name, { encoding: "utf-8" });
+        self.app.home.forceRedraw();
+        console.log(self.app.masterCode);
       });
     }
   }
