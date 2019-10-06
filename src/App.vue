@@ -51,6 +51,7 @@ export default {
     masterCode: null,
     preferencedialog: null,
     home: null,
+    toolbar: null,
     isSyncing: false,
     prefs: {
       hasClassPrefix: false,

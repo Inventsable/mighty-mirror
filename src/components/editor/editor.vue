@@ -4,12 +4,15 @@
     <MonacoEditor
       id="realEditor"
       ref="editor"
+      :focusable="!isSyncing"
+      :disabled="!isSyncing"
       :width="editorW"
       :height="editorH"
       :theme="theme"
       :language="lang"
       :options="options"
       @change="onChange"
+      @focus="seeFocus"
       :value="code"
     ></MonacoEditor>
   </div>
@@ -104,6 +107,7 @@ export default {
       lineNumbersMinChars: 4,
       autoIndent: true,
       formatOnPaste: true,
+      // readOnly: true,
       formatOnType: true
     }
   }),
@@ -118,6 +122,9 @@ export default {
       return this.editor
         ? this.editor.getModel().getValueInRange(this.editor.getSelection())
         : null;
+    },
+    isSyncing() {
+      return this.app.toolbar ? this.app.toolbar.isSyncing : null;
     }
   },
   watch: {
@@ -143,6 +150,10 @@ export default {
     console.log("Editor mounted");
   },
   methods: {
+    seeFocus() {
+      console.log("Focus was on");
+      if (this.isSyncing) this.editor.blur();
+    },
     focus() {
       this.editor.focus();
     },

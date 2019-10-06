@@ -15,3 +15,7 @@ function quickExportSVG(path) {
   app.activeDocument.exportFile(thisFile, type, setOptionsForSVGExport());
   return path + name;
 }
+
+function getPathItemCount() {
+  return app.activeDocument.pathItems.length;
+}

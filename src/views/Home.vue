@@ -128,23 +128,46 @@ export default {
     console.log("Page mounted");
   },
   methods: {
+    forceWorkerRedraw(content) {
+      const self = this;
+      const prefs = this.app.prefs;
+
+      if (window.Worker) {
+        const myWorker = new Worker("../worker/parse.js");
+
+        first.onchange = function() {
+          myWorker.postMessage([first.value, second.value]);
+          console.log("Message posted to worker");
+        };
+
+        second.onchange = function() {
+          myWorker.postMessage([first.value, second.value]);
+          console.log("Message posted to worker");
+        };
+
+        myWorker.onmessage = function(e) {
+          result.textContent = e.data;
+          console.log("Message received from worker");
+        };
+      }
+    },
     forceRedraw(content) {
       const self = this;
-      // return new Promise((resolve, reject) => {
       content = content || self.app.masterCode;
-      console.log("Force redraw");
-      this.totalsamp = self.parseCode(content);
-      // self.totalsamp = content
-      // ? Promise.resolve(self.parseCode(content))
-      // : Promise.resolve("");
-      // if (content) {
 
-      // }
-      // });
+      // KIND OF WORKS
+      // let result = self.parseCode(content);
+      // self.app.editorTotal.editor.setValue(result);
+      // console.log("Forced redraw");
+      // console.log(result);
+
+      self.parseCode(content).then(result => {
+        // console.log(result);
+        self.app.editorTotal.editor.setValue(result);
+      });
     },
     parseCode(content) {
       console.log("Parsing...");
-
       // Should be separate
       content = this.app.prefs.noDataNames
         ? content.replace(/data-name\=\"\.[^\"]*\"\s/gm, "")
@@ -159,8 +182,8 @@ export default {
         ? this.replaceClasses(content)
         : content;
 
-      // return Promise.resolve(content);
-      return content;
+      return Promise.resolve(content);
+      // return content;
     },
     replaceClasses(content) {
       let classLineRX = /\<\w*\sid\=\"\_\.[^\"]*\".*\>/gm;
@@ -171,6 +194,7 @@ export default {
       let allClass = /class\=\"[^\"]*\"/gm;
 
       let targs = content.match(classLineRX);
+      if (!targs) return content;
       targs.forEach(match => {
         let original = match;
         console.log(match);
